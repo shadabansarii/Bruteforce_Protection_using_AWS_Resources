@@ -66,19 +66,6 @@ Application Load Balancer (ALB)
 
 ---
 
-## 📁 File Structure
-
-```
-soc-dashboard/
-├── admin.py              # Login portal (runs on EC2, port 80)
-├── map.py                # Geo attack map generator (runs on EC2, port 8080)
-├── lambda_function.py    # Lambda — processes S3 + CloudWatch logs, sends SNS alert
-├── soc-dashboard.html    # SOC Dashboard frontend (hosted on S3)
-└── README.md
-```
-
----
-
 ## 🚀 How It Works — Step by Step
 
 ### 1. Attack Detection
@@ -115,7 +102,6 @@ Country:     United States
 State:       New York
 City:        New York City
 
-You will not receive another alert for this IP for 300 seconds.
 ```
 
 ---
@@ -124,52 +110,34 @@ You will not receive another alert for this IP for 300 seconds.
 
 ### Lambda Execution Role
 The Lambda function needs an IAM role with the following permissions:
-
+1. AWS Managed Policies (attach directly)
+2. Attach inline json policy from below
 ```json
 {
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:GetObject"
-      ],
-      "Resource": "arn:aws:s3:::your-alb-log-bucket/*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "logs:FilterLogEvents",
-        "logs:GetLogEvents",
-        "logs:DescribeLogStreams"
-      ],
-      "Resource": "arn:aws:logs:your-region:your-account-id:log-group:your-log-group-name:*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "dynamodb:GetItem",
-        "dynamodb:PutItem"
-      ],
-      "Resource": "arn:aws:dynamodb:your-region:your-account-id:table/BlockedIPCache"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "sns:Publish"
-      ],
-      "Resource": "arn:aws:sns:your-region:your-account-id:your-sns-topic-name"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents"
-      ],
-      "Resource": "*"
-    }
-  ]
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "ReadALBLogsFromS3",
+            "Effect": "Allow",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::your-alb-log-bucket/*"
+        },
+        {
+            "Sid": "DynamoDBDoubleCheck",
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:GetItem",
+                "dynamodb:PutItem"
+            ],
+            "Resource": "arn:aws:dynamodb:your-region:your-account-id:table/BlockedIPCache"
+        },
+        {
+            "Sid": "SendSNSAlert",
+            "Effect": "Allow",
+            "Action": "sns:Publish",
+            "Resource": "arn:aws:sns:your-region:your-account-id:your-sns-topic-name"
+        }
+    ]
 }
 ```
 
@@ -177,7 +145,7 @@ The Lambda function needs an IAM role with the following permissions:
 The EC2 instance needs this policy attached to push logs to CloudWatch:
 
 ```
-CloudWatchAgentServerPolicy   (AWS Managed Policy)
+CloudWatchAgentAdminPolicy   
 ```
 
 ---
@@ -189,7 +157,6 @@ CloudWatchAgentServerPolicy   (AWS Managed Policy)
 | Table Name | `BlockedIPCache` |
 | Partition Key | `ip` (String) |
 | TTL Attribute | `expires_at` (auto-deletes records after 300s) |
-| Billing Mode | On-Demand |
 
 ---
 
@@ -218,14 +185,42 @@ CloudWatchAgentServerPolicy   (AWS Managed Policy)
 {
   "Version": "2012-10-17",
   "Statement": [
+
     {
+      "Sid": "AllowELBWriteLogs",
       "Effect": "Allow",
       "Principal": {
-        "AWS": "arn:aws:iam::your-region-elb-account-id:root"
+        "Service": "logdelivery.elasticloadbalancing.amazonaws.com"
       },
       "Action": "s3:PutObject",
-      "Resource": "arn:aws:s3:::your-alb-log-bucket/*"
+      "Resource": "arn:aws:s3:::YOUR_LOG_BUCKET_NAME/AWSLogs/YOUR_ACCOUNT_ID/*",
+      "Condition": {
+        "StringEquals": {
+          "s3:x-amz-acl": "bucket-owner-full-control"
+        }
+      }
+    },
+
+    {
+      "Sid": "AllowELBCheckBucket",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "logdelivery.elasticloadbalancing.amazonaws.com"
+      },
+      "Action": "s3:GetBucketAcl",
+      "Resource": "arn:aws:s3:::YOUR_LOG_BUCKET_NAME"
+    },
+
+    {
+      "Sid": "AllowLambdaReadLogs",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::YOUR_ACCOUNT_ID:role/YOUR_LAMBDA_ROLE_NAME"
+      },
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::YOUR_LOG_BUCKET_NAME/*"
     }
+
   ]
 }
 ```
@@ -249,7 +244,7 @@ CloudWatchAgentServerPolicy   (AWS Managed Policy)
 
 ## 🌍 Attack Map (map.py)
 
-The attack map reads from `/var/log/web_honeypot.log` and generates an interactive **Folium map** showing:
+The attack map reads from `/var/log/admin.log` and generates an interactive **Folium map** showing:
 
 - 🔴 Red markers — failed login attempts
 - 🟢 Green markers — successful logins
@@ -290,14 +285,3 @@ http://your-load-balancer-url:8080/attack_map.html
 
 ---
 
-## 🔗 LinkedIn Post
-
-> Built a fully automated SOC Dashboard on AWS that detects brute-force attacks and emails me the attacker's location in under 30 seconds.
->
-> Full walkthrough + code on GitHub → [your-github-link]
-
----
-
-## 📜 License
-
-MIT License — free to use, modify, and deploy.
