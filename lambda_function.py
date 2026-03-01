@@ -115,7 +115,7 @@ Country: {country}
 State: {state}
 City: {city}
 
-You will not receive another alert for this IP for 300 seconds.
+
 """
     try:
         sns.publish(TopicArn=SNS_TOPIC_ARN, Subject="Security Alert - Blocked IP", Message=message)
