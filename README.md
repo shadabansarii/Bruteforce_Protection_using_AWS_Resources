@@ -44,7 +44,7 @@ Application Load Balancer (ALB)
            Lambda
               │
               ├── reads S3 LB logs → finds HTTP 403 blocked IPs
-              └── reads CloudWatch admin.py logs → extracts geolocation
+              └── reads CloudWatch admin.py logs → extracts geolocation (i have used ipgeolocation)
                         │
                         ▼
                    DynamoDB (300s double-check — no duplicate alerts)
