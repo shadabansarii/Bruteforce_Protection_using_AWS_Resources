@@ -7,13 +7,12 @@ When someone brute-forces the admin login page, the system **automatically detec
 **Dashboard:** hosted on S3 static website  
 **Attack map:** `http://your-load-balancer-url:8080/attack_map.html`
 
-```
+
 https://github.com/user-attachments/assets/ce99a981-35d2-4b5d-b25c-fcfe9e82d59b
-```
-```
+
 https://github.com/user-attachments/assets/70646058-17bd-41d8-a466-6195cfed7214
 
-```
+
 
 ## 📐 Architecture Overview
 
