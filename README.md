@@ -8,13 +8,10 @@ When someone brute-forces the admin login page, the system **automatically detec
 **Attack map:** `http://your-load-balancer-url:8080/attack_map.html`
 
 
-Uploading Demostration.mp4…
-
+https://github.com/user-attachments/assets/ce99a981-35d2-4b5d-b25c-fcfe9e82d59b
 
 
 https://github.com/user-attachments/assets/67705108-2370-4c35-8103-821e9c761127
-
-
 ---
 
 ## 📐 Architecture Overview
