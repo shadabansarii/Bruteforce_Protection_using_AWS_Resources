@@ -121,7 +121,7 @@ City:        New York City
 
 ### Lambda Execution Role
 The Lambda function needs an IAM role with the following permissions:
-1. AWS Managed Policies (attach directly)
+1. AWS Managed Policies "AWSLambdaBasicExecutionRole" (attach directly)
 2. Attach inline json policy from below
 ```json
 {
