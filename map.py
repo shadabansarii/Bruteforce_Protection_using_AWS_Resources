@@ -2,7 +2,7 @@ import folium
 import json
 
 # ─── CONFIGURATION ───────────────────────────────────────────
-LOG_FILE = "/var/log/web_honeypot.log"   # Path to your honeypot log file on EC2
+LOG_FILE = "/var/log/admin.log"   # Path to your honeypot log file on EC2
 OUTPUT   = "attack_map.html"             # Output map file name
 # ─────────────────────────────────────────────────────────────
 
@@ -43,7 +43,7 @@ with open(LOG_FILE) as f:
 m.save(OUTPUT)
 print(f"Map saved to {OUTPUT}")
 
-#bind your map on port 8080
+#bind your map on port 8080- run below command
 #python3 -m http.server 8080 --bind 0.0.0.0
 
 # Access the map via your Load Balancer:
