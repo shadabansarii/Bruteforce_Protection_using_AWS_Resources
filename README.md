@@ -47,6 +47,7 @@ Application Load Balancer (ALB)
                         ▼
                       SNS → Email Alert to Admin
 ```
+```
 📁 File Structure
 soc-dashboard/
 ├── admin.py              # Login portal (runs on EC2, port 80)
@@ -54,6 +55,7 @@ soc-dashboard/
 ├── lambda_function.py    # Lambda — processes S3 + CloudWatch logs, sends SNS alert
 ├── soc-dashboard.html    # SOC Dashboard frontend (hosted on S3) and backend on port 5000(hosted on ec2)
 ---
+```
 
 ## ⚙️ AWS Services Used
 
