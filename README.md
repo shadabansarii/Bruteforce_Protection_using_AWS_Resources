@@ -7,6 +7,14 @@ When someone brute-forces the admin login page, the system **automatically detec
 **Dashboard:** hosted on S3 static website  
 **Attack map:** `http://your-load-balancer-url:8080/attack_map.html`
 
+
+Uploading Demostration.mp4…
+
+
+
+https://github.com/user-attachments/assets/67705108-2370-4c35-8103-821e9c761127
+
+
 ---
 
 ## 📐 Architecture Overview
@@ -232,7 +240,6 @@ CloudWatchAgentAdminPolicy
 ```
 
 > **Note:** Replace `your-region-elb-account-id` with the ELB account ID for your region.  
-> Full list: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/enable-access-logging.html
 
 ---
 
